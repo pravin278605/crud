@@ -3,7 +3,6 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { studentValidationRules } = require('../middleware/studentValidator');
 
-
 router.post('/login',authController.login);
 router.get('/session', authController.getSession);
 router.get('/sclass', authController.getClass);
