@@ -2,29 +2,28 @@ const { validationResult } = require('express-validator');
 const Student = require('../models/studentModel');
 
 exports.login = async (req,res) =>{
-
-  const {email,password} = req.body;
-    const user =await Student.findByEmail(email);    
+    const {email,password} = req.body;
+    const user =await Student.findByEmail(email);  
+  
     if (!user || user.password !== password) {
-    return res.status(401).json({ message: 'Invalid email or password' });
-  }
-  req.session.user = user.email;   
-  res.json({ message: 'Login successful',user:req.session.user });
+      return res.status(401).json({ message: 'Invalidsss email or password' });
+    }
+
+    req.session.user = user.email;   
+    res.json({ message: 'Login successful',user:req.session.user });
 };
 
 exports.add = async (req,res) => {
   try{
-      const errors = validationResult(req);
-      
+    const errors = validationResult(req);    
     const {roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email} = req.body;
     /*if(!roll_no || !class_id || !first_name || !dob){
       return res.status(400).json({message:"All Field are required"});
     }
     if(!roll_no){
     return res.status(400).json({ errors:["Roll Number is require"]});
-
     }*/
-   if (!errors.isEmpty()) {
+  if(!errors.isEmpty()) {
     // return validation errors
       return res.status(400).json({ errors: errors.array() });
     } 
@@ -34,6 +33,27 @@ exports.add = async (req,res) => {
     res.status(500).json({ message: "Error adding student", error: err.message });
   }
 }
+
+exports.updatestudent = async(req,res) => {
+  const { id } = req.params;
+  const {roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email} = req.body;
+  try {
+    const updateStudent = Student.updateByStudent(roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email.id);   
+    res.status(500).json({message:"Student Update Succesfully.."})
+  } catch (err) {
+        res.status(500).json({ message: "Error adding student", error: err.message });
+  }
+
+}
+exports.editstudent = async(req,res) => {
+    const { id } = req.params;
+    try {
+    const getStudentData= await Student.getStudentById(id);
+    res.json(getStudentData);
+    } catch(err) {
+      res.status(500).json({ error: "Database error", details: err.message });  
+    }
+  }
 exports.getStudent = async (req,res) => {
   try {
     const studentlist = await Student.getAllStudent();

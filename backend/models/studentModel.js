@@ -4,6 +4,15 @@ exports.findByEmail = async (email) => {
   const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
   return rows[0];
 };
+
+exports.getStudentById = async (id) => {
+  try{
+  const [rows] = await pool.query('SELECT * FROM students WHERE id = ?', [id]);
+    return rows[0];
+  }catch(err){
+    throw err;
+  }
+}
 exports.getAllClasses = async () => {
   try {
     const [rows] = await pool.query("SELECT id,CONCAT(name, '-', section) as name FROM classes");
@@ -11,7 +20,8 @@ exports.getAllClasses = async () => {
   } catch (err) {
     throw err;
   }
-};  
+};
+  
 exports.getAllStudent = async () => {
   try {
     const [rows] = await pool.query("SELECT st.id,st.roll_no,concat(IFNULL(st.first_name,''),' ',IFNULL(st.last_name,''))  as name,date(dob) as dob,gender,CONCAT(cl.name,' ',cl.section) class_name,st.gender,st.email FROM students st INNER JOIN classes cl on st.class_id = cl.id WHERE 1 =1");
@@ -29,6 +39,14 @@ exports.addStudent = async (studentData) => {
     return result;
 };
 
+exports.updateByStudent = async(updateData,id) => {
+        const { roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email} = updateData;      
+         const [result] = await pool.query(
+          "UPDATE students SET roll_no=?,  first_name=?, last_name=?, dob=?, gender=?, class_id=?, address=?, mobile=? ,email=? WHERE id=?",
+          [roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email,id]
+        );
+        return result;
+};
 
 
 
