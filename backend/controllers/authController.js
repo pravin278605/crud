@@ -4,11 +4,9 @@ const Student = require('../models/studentModel');
 exports.login = async (req,res) =>{
     const {email,password} = req.body;
     const user =await Student.findByEmail(email);  
-  
     if (!user || user.password !== password) {
       return res.status(401).json({ message: 'Invalidsss email or password' });
     }
-
     req.session.user = user.email;   
     res.json({ message: 'Login successful',user:req.session.user });
 };
@@ -49,7 +47,7 @@ exports.editstudent = async(req,res) => {
     } catch(err) {
       res.status(500).json({ error: "Database error", details: err.message });  
     }
-  }
+}
 exports.getStudent = async (req,res) => {
   try {
     const studentlist = await Student.getAllStudent();
@@ -67,14 +65,6 @@ exports.getSession = async (req,res) => {
     }  
 };
 
-/*exports.getClasses = async (req, res) => {
-  try {
-    const classes = await Student.getAllClasses();
-    res.json(classes);
-  } catch (err) {
-    res.status(500).json({ error: "Database error", details: err.message });
-  }
-};*/
 exports.getClass = async(req,res) => {
   try {
     const classes = await Student.getAllClasses();
