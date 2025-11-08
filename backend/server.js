@@ -1,30 +1,28 @@
-// const express =require("express");
-// const cors = require("cors");
-// const app = express();
-// const port = 3000;
-// app.use(express.json());
-// app.use(cors());
+const cluster = require('cluster');
+const os = require('os');
+const app = require('./app'); // your Express app (from app.js)
 
-// const studentRouter = require('./routes/studentRoutes');
-// app.use(studentRouter);
+const numCPUs = os.cpus().length;
 
+if (cluster.isMaster) {
+  console.log(`👑 Master ${process.pid} is running`);
 
-// app.post('/create',(req,res)=>{
-//   const {name,email} = req.body;
-//   const sql='INSERT INTO student (name,email) values(?,?)';
-//   db.query(sql,[name,email],(err,result)=>{
-//     if(err){
-//       console.error('insert errr',err);
-//             return res.status(500).json({ error: 'Database insert failed' });
-//     }
-//     res.status(200).json({
-//     message: 'User created successfully',
-//     userId: result.id,
-//     });
+  // Fork workers (1 per CPU)
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-//   })
-// });
-// app.listen(port, () => {
-//   console.log(`Serxx
-//     ver running at http://localhost:${port}`);
-// });
+  // Restart a worker if it dies
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`❌ Worker ${worker.process.pid} died`);
+    console.log('⚙️ Starting a new worker...');
+    cluster.fork();
+  });
+
+} else {
+  // Workers share the same server port
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Worker ${process.pid} running on port ${PORT}`);
+  });
+}
