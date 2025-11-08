@@ -47,7 +47,7 @@ exports.updateByStudent = async(updateData,id) => {
         const [result] = await pool.query(sql, values);
         return result;
   } catch (error) {
-          console.error("❌ Error in updateByStudent:", error);
+          console.error("Error in updateByStudent:", error);
           throw error;
   }
 };
