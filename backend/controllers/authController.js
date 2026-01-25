@@ -1,14 +1,29 @@
 const { validationResult } = require('express-validator');
 const Student = require('../models/studentModel');
+const md5 = require('md5');
+
 
 exports.login = async (req,res) =>{
     const {email,password} = req.body;
     const user =await Student.findByEmail(email);  
-    if (!user || user.password !== password) {
-      return res.status(401).json({ message: 'Invalidsss email or password' });
-    }
+        const errors = validationResult(req);    
+
+   const hashedPassword = md5(password);
+
+  /*  if (!user || user.password !== hashedPassword) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }*/
+     if(!errors.isEmpty()) {      
+        return res.status(400).json({ errors: errors.array() });
+      }
+      else if(!user || user.password !== hashedPassword){
+        return res.status(401).json({ message: 'password not match' });
+      }     
     req.session.user = user.email;   
     res.json({ message: 'Login successful',user:req.session.user });
+};
+exports.addDocument = async (req,res) => {
+  console.log('test');
 };
 
 exports.add = async (req,res) => {
@@ -24,6 +39,15 @@ exports.add = async (req,res) => {
         res.status(500).json({ message: "Error adding student", error: err.message });
   }
 }
+exports.deleteStudent = async (req,res) => {
+  const id = req.params.id;
+  try{
+        const result = await Student.deleteByStudent(id);   
+        res.status(200).json({message:"Student Deleted Succesfully.."})
+  } catch (err) {
+        res.status(500).json({ message: "Error updating student", error: err.message });
+  }
+}
 
 exports.updatestudent = async(req,res) => {  
   try {
@@ -37,7 +61,6 @@ exports.updatestudent = async(req,res) => {
   } catch (err) {
         res.status(500).json({ message: "Error updating student", error: err.message });
   }
-
 }
 exports.editstudent = async(req,res) => {
     const { id } = req.params;
@@ -73,6 +96,18 @@ exports.getClass = async(req,res) => {
     res.status(500).json({ error: "Database error", details: err.message });
   }
 }
+exports.uploadFile = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    res.status(200).json({
+      message: 'File uploaded successfully!',
+    });   
+  } catch (error){
+        res.status(500).json({ message: 'File upload failed', error: error.message });
+  }  
+}  
 exports.logout = async (req,res) => {
   try {
     req.session.destroy();
@@ -80,6 +115,5 @@ exports.logout = async (req,res) => {
   } catch (err) {
         console.error('Logout error:', err);
         res.status(500).json({ message: 'Server error during logout' });
-  }  
-    
+  }      
 };
