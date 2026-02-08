@@ -1,24 +1,23 @@
 const { validationResult } = require('express-validator');
 const Student = require('../models/studentModel');
 const md5 = require('md5');
-
-
 exports.login = async (req,res) =>{
     const {email,password} = req.body;
     const user =await Student.findByEmail(email);  
-        const errors = validationResult(req);    
-
-   const hashedPassword = md5(password);
-
-  /*  if (!user || user.password !== hashedPassword) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }*/
-     if(!errors.isEmpty()) {      
-        return res.status(400).json({ errors: errors.array() });
-      }
-      else if(!user || user.password !== hashedPassword){
-        return res.status(401).json({ message: 'password not match' });
-      }     
+    const errors = validationResult(req);    
+    const hashedPassword = md5(password);
+    if(!errors.isEmpty()) {      
+      return res.status(400).json({ errors: errors.array() });
+    }
+    else if(!user || user.password !== hashedPassword){
+      return res.status(401).json({ 
+          errors:[
+          {
+            msg:"Password dose not match"
+          }
+            ]        
+      });        
+    }     
     req.session.user = user.email;   
     res.json({ message: 'Login successful',user:req.session.user });
 };
