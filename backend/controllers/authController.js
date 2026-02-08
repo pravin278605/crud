@@ -27,8 +27,9 @@ exports.addDocument = async (req,res) => {
 
 exports.add = async (req,res) => {
   try{
-    const errors = validationResult(req);    
-    const {roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email} = req.body;    
+
+      const errors = validationResult(req);    
+      const {roll_no, first_name, last_name,dob,gender,class_id,address,mobile,email} = req.body;    
     if(!errors.isEmpty()) {      
         return res.status(400).json({ errors: errors.array() });
       } 
